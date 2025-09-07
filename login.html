@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In - ChargePace</title>
+    <link href="style.css" rel="stylesheet" type="text/css"/>
+</head>
+<body class="login-page-body">
+
+    <div class="login-container">
+        <!-- HEADER -->
+        <header class="login-header">
+            <a href="index.html" class="login-logo">CHARGEPACE</a>
+            <div class="lang-selector">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L8.99 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1h-2v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.62-1.23 4.96-3.1 6.39z" fill="currentColor"/></svg>
+                <span>en-US</span>
+            </div>
+        </header>
+
+        <!-- MAIN FORM - SIMPLIFIED TO SINGLE STEP -->
+        <main class="login-form-wrapper">
+            <h1>Sign In</h1>
+            <form id="sign-in-form">
+                <div class="input-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" autocomplete="email" required>
+                </div>
+                <div class="input-group password-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" autocomplete="current-password" required>
+                </div>
+                <!-- Optional: Add this p tag for better, non-alert error messages -->
+                <p id="error-message" style="color: #d93025; display: none; margin-bottom: 15px; text-align: center;"></p>
+                
+                <button type="submit" class="btn btn-primary" id="btn-sign-in">Sign In</button>
+            </form>
+
+            <a href="password-reset.html" class="trouble-link">Trouble Signing In?</a>
+            <div class="separator">
+                <span>Or</span>
+            </div>
+            <a href="register.html" class="btn btn-secondary">Create Account</a>
+        </main>
+
+        <!-- FOOTER -->
+        <footer class="login-footer">
+            <p>ChargePace &copy; 2025</p>
+            <div class="footer-links">
+                <a href="#">Privacy & Legal</a>
+                <a href="#">Contact</a>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+
+    <!-- Initialize Firebase and Login Logic -->
+    <script>
+      const firebaseConfig = {
+        apiKey: "AIzaSyDxAuX5hEWOuYdeGSvQHxhMlb9hyRZTNYw",
+        authDomain: "twc2-95e6e.firebaseapp.com",
+        projectId: "twc2-95e6e",
+        storageBucket: "twc2-95e6e.appspot.com",
+        messagingSenderId: "648663487938",
+        appId: "1:648663487938:web:f466fd8fdd893bdaeef25b"
+      };
+      firebase.initializeApp(firebaseConfig);
+      const auth = firebase.auth();
+
+      // --- UPDATED LOGIN LOGIC WITH ADMIN CHECK ---
+      document.addEventListener('DOMContentLoaded', function() {
+          const form = document.getElementById('sign-in-form');
+          const emailInput = document.getElementById('email');
+          const passwordInput = document.getElementById('password');
+          const btnSignIn = document.getElementById('btn-sign-in');
+          const errorMessageEl = document.getElementById('error-message');
+          
+          form.addEventListener('submit', function(event) {
+              event.preventDefault();
+              
+              const email = emailInput.value;
+              const password = passwordInput.value;
+
+              if (!email || !password) {
+                  alert("Please enter both your email and password.");
+                  return;
+              }
+
+              // Update button state
+              btnSignIn.textContent = "Signing In...";
+              btnSignIn.disabled = true;
+              if (errorMessageEl) errorMessageEl.style.display = 'none';
+
+              // 1. Sign in the user
+              auth.signInWithEmailAndPassword(email, password)
+                  .then(userCredential => {
+                      const user = userCredential.user;
+                      // 2. Force a token refresh to get the latest custom claims
+                      return user.getIdTokenResult(true);
+                  })
+                  .then(idTokenResult => {
+                      // 3. Check for the isAdmin claim and redirect accordingly
+                      if (idTokenResult.claims.isAdmin) {
+                          // USER IS AN ADMIN: Redirect to admin panel
+                          window.location.href = 'admin.html';
+                      } else {
+                          // USER IS A REGULAR USER: Proceed with email verification check
+                          if (auth.currentUser.emailVerified) {
+                              window.location.href = 'dashboard.html';
+                          } else {
+                              throw new Error('auth/email-not-verified');
+                          }
+                      }
+                  })
+                  .catch(error => {
+                      console.error("Sign-in process error:", error);
+                      let message = "Incorrect Password. Please check and try again.";
+                      if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+                          message = "Invalid email or password. Please try again.";
+                      } else if (error.message === 'auth/email-not-verified') {
+                           message = "Your email is not verified. Please check your inbox for the verification link.";
+                      }
+                      
+                      // Display the error
+                      if (errorMessageEl) {
+                          errorMessageEl.textContent = message;
+                          errorMessageEl.style.display = 'block';
+                      } else {
+                          alert(message); // Fallback to alert if the p tag doesn't exist
+                      }
+                      
+                      // Reset button state
+                      btnSignIn.textContent = "Sign In";
+                      btnSignIn.disabled = false;
+                  });
+          });
+      });
+    </script>
+</body>
+</html>

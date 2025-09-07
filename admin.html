@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel -  ChargePace</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="style.css" rel="stylesheet" type="text/css"/>
+</head>
+<body class="admin-page">
+
+    <!-- Left Sidebar for Admin Panel -->
+    <nav class="sidebar-nav" id="admin-sidebar">
+        <a href="#" data-target="admin-dashboard-content" class="sidebar-logo">ADMIN PANEL</a>
+        <div class="sidebar-links">
+            <a href="#" data-target="admin-dashboard-content" class="sidebar-link active"><i class="fa-solid fa-chart-line"></i><span>Dashboard</span></a>
+            <a href="#" data-target="admin-users-content" class="sidebar-link"><i class="fa-solid fa-users"></i><span>User Management</span></a>
+            <a href="#" data-target="admin-ports-content" class="sidebar-link"><i class="fa-solid fa-charging-station"></i><span>Port Management</span></a>
+            <a href="#" data-target="admin-transactions-content" class="sidebar-link"><i class="fa-solid fa-money-bill-transfer"></i><span>Transactions</span></a>
+            <a href="#" data-target="admin-settings-content" class="sidebar-link"><i class="fa-solid fa-gears"></i><span>Site Settings</span></a>
+        </div>
+        <div class="sidebar-logout"><button id="admin-logout-button"><i class="fa-solid fa-arrow-right-from-bracket"></i><span>Log Out</span></button></div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <div class="main-content">
+        <header class="admin-mobile-header">
+            <button id="admin-menu-button" class="admin-menu-button"><i class="fa-solid fa-bars"></i></button>
+            <span class="mobile-header-title">Admin Panel</span>
+        </header>
+
+        <div class="page-content-container">
+            <!-- ========= ADMIN DASHBOARD CONTENT ========= -->
+            <div id="admin-dashboard-content" class="page-content active">
+                <header class="desktop-header"><h1>Admin Dashboard</h1></header>
+                <main>
+                    <div class="admin-stat-grid">
+                        <div class="stat-card"><p id="pending-kyc-count" class="stat-value">0</p><p class="stat-label">Pending KYC Verifications</p></div>
+                        <div class="stat-card"><p id="pending-ports-count" class="stat-value">0</p><p class="stat-label">Pending Port Approvals</p></div>
+                        <div class="stat-card"><p id="pending-withdrawals-count" class="stat-value">0</p><p class="stat-label">Pending Withdrawals</p></div>
+                        <div class="stat-card"><p id="total-users-count" class="stat-value">0</p><p class="stat-label">Total Users</p></div>
+                    </div>
+                </main>
+            </div>
+
+            <!-- ========= USER MANAGEMENT CONTENT ========= -->
+            <div id="admin-users-content" class="page-content hidden">
+                <header class="desktop-header"><h1>User Management</h1></header>
+                <main>
+                    <div class="card">
+                        <div class="admin-table-controls"><input type="text" id="user-search-input" placeholder="Search by name or email..."></div>
+                        <div class="admin-table-container">
+                             <table class="admin-table">
+                                <thead><tr><th>Name</th><th>Email</th><th>KYC Status</th><th>Account Status</th><th>Actions</th></tr></thead>
+                                <tbody id="users-table-body"><tr><td colspan="5" class="empty-state">Loading users...</td></tr></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </main>
+            </div>
+            
+            <!-- ========= PORT MANAGEMENT CONTENT (ENHANCED) ========= -->
+            <div id="admin-ports-content" class="page-content hidden">
+                 <header class="desktop-header"><h1>Port Management</h1></header>
+                 <main>
+                    <div class="card">
+                        <div class="modal-tabs">
+                            <button class="modal-tab-link active" data-target="ports-pending-pane">Pending Approvals</button>
+                            <button class="modal-tab-link" data-target="ports-all-pane">All Ports</button>
+                        </div>
+                        <div class="modal-tab-content">
+                            <!-- Pending Approvals Pane -->
+                            <div id="ports-pending-pane" class="modal-tab-pane">
+                                <div class="admin-table-container">
+                                     <table class="admin-table">
+                                        <thead><tr><th>User</th><th>Package</th><th>Region</th><th>Date Submitted</th><th>Actions</th></tr></thead>
+                                        <tbody id="ports-pending-table-body"><tr><td colspan="5" class="empty-state">Loading pending ports...</td></tr></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <!-- All Ports Pane -->
+                            <div id="ports-all-pane" class="modal-tab-pane hidden">
+                                <div class="admin-table-controls">
+                                    <input type="text" id="all-ports-search-input" placeholder="Search by location or user...">
+                                    <select id="all-ports-status-filter">
+                                        <option value="">All Statuses</option>
+                                        <option value="Active">Active</option>
+                                        <option value="Inactive">Inactive</option>
+                                        <option value="Under Construction">Under Construction</option>
+                                    </select>
+                                </div>
+                                <div class="admin-table-container">
+                                    <table class="admin-table">
+                                        <thead><tr><th>User</th><th>Location</th><th>Port ID</th><th>Package</th><th>Status</th><th>Actions</th></tr></thead>
+                                        <tbody id="ports-all-table-body"><tr><td colspan="6" class="empty-state">Loading all ports...</td></tr></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                 </main>
+            </div>
+
+            <!-- ========= TRANSACTION MANAGEMENT CONTENT ========= -->
+            <div id="admin-transactions-content" class="page-content hidden">
+                 <header class="desktop-header"><h1>Transaction Management</h1></header>
+                 <main>
+                    <div class="card">
+                        <div class="admin-table-controls">
+                            <input type="text" id="transaction-search-input" placeholder="Search by user..."><select id="transaction-type-filter"><option value="">All Types</option><option value="investment">Investment</option><option value="withdrawal">Withdrawal</option><option value="earning">Earning</option></select><select id="transaction-status-filter"><option value="">All Statuses</option><option value="Pending">Pending</option><option value="Pending Approval">Pending Approval</option><option value="Completed">Completed</option><option value="Rejected">Rejected</option></select>
+                        </div>
+                        <div class="admin-table-container">
+                            <table class="admin-table">
+                                <thead><tr><th>Date</th><th>User</th><th>Type</th><th>Details</th><th>Amount</th><th>Status</th><th>Actions</th></tr></thead>
+                                <tbody id="transactions-table-body"><tr><td colspan="7" class="empty-state">Loading transactions...</td></tr></tbody>
+                            </table>
+                        </div>
+                    </div>
+                 </main>
+            </div>
+
+            <!-- ========= SITE SETTINGS CONTENT (NEW) ========= -->
+            <div id="admin-settings-content" class="page-content hidden">
+                 <header class="desktop-header"><h1>Site Settings</h1></header>
+                 <main>
+                    <div class="card">
+                        <h3>Payment Settings</h3>
+                        <p>These settings are used on the user dashboard for deposits and investments.</p>
+                        <form id="site-settings-form">
+                            <div class="form-group">
+                                <label for="nowpayments-link-input">NowPayments Link</label>
+                                <input type="url" id="nowpayments-link-input" placeholder="https://your-nowpayments-link.com" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="simplex-link-input">Simplex Link</label>
+                                <input type="url" id="simplex-link-input" placeholder="https://your-simplex-link.com" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="btc-address-input">BTC Deposit Address (for Card Payments)</label>
+                                <input type="text" id="btc-address-input" placeholder="Your BTC Wallet Address" required>
+                            </div>
+                            <div class="modal-actions-group">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fa-solid fa-save"></i> Save Settings
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                 </main>
+            </div>
+        </div>
+    </div>
+    
+    <div id="admin-modal" class="modal-overlay hidden"><div class="modal-content"><div class="modal-header"><h2 id="admin-modal-title">Modal Title</h2><button class="modal-close-button">&times;</button></div><div id="admin-modal-body" class="modal-body"></div></div></div>
+    <div id="admin-mobile-overlay" class="mobile-overlay"></div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script>
+      const firebaseConfig = { apiKey: "AIzaSyDxAuX5hEWOuYdeGSvQHxhMlb9hyRZTNYw", authDomain: "twc2-95e6e.firebaseapp.com", projectId: "twc2-95e6e", storageBucket: "twc2-95e6e.appspot.com", messagingSenderId: "648663487938", appId: "1:648663487938:web:f466fd8fdd893bdaeef25b" };
+      firebase.initializeApp(firebaseConfig);
+      const auth = firebase.auth();
+      const db = firebase.firestore();
+    </script>
+    
+        <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // --- 1. ELEMENT SELECTORS ---
+        const body = document.querySelector('body.admin-page');
+        const sidebarLinks = document.querySelectorAll('.admin-page .sidebar-link');
+        const pageContents = document.querySelectorAll('.admin-page .page-content');
+        const logoutButton = document.getElementById('admin-logout-button');
+        const usersTableBody = document.getElementById('users-table-body');
+        const userSearchInput = document.getElementById('user-search-input');
+        const adminModal = document.getElementById('admin-modal');
+        const adminModalTitle = document.getElementById('admin-modal-title');
+        const adminModalBody = document.getElementById('admin-modal-body');
+        const modalCloseButton = adminModal.querySelector('.modal-close-button');
+        const menuButton = document.getElementById('admin-menu-button');
+        const mobileOverlay = document.getElementById('admin-mobile-overlay');
+        
+        // Port Management Selectors
+        const portsPendingTableBody = document.getElementById('ports-pending-table-body');
+        const portsAllTableBody = document.getElementById('ports-all-table-body');
+        const allPortsSearchInput = document.getElementById('all-ports-search-input');
+        const allPortsStatusFilter = document.getElementById('all-ports-status-filter');
+
+        // Transaction Management Selectors
+        const transactionsTableBody = document.getElementById('transactions-table-body');
+        const transactionSearchInput = document.getElementById('transaction-search-input');
+        const transactionTypeFilter = document.getElementById('transaction-type-filter');
+        const transactionStatusFilter = document.getElementById('transaction-status-filter');
+
+        // Site Settings Selectors
+        const siteSettingsForm = document.getElementById('site-settings-form');
+
+        // --- Global State Variables ---
+        let allUsersData = [];
+        let pendingInvestmentsData = [];
+        let allTransactionsData = [];
+        let allPortsData = [];
+
+        // --- 2. CORE APP LOGIC ---
+        auth.onAuthStateChanged(user => {
+            if (user) { checkAdminStatus(user); } 
+            else { window.location.replace('login.html'); }
+        });
+
+        async function checkAdminStatus(user) { /* ... same as before ... */
+             try {
+                const idTokenResult = await user.getIdTokenResult(true);
+                if (idTokenResult.claims.isAdmin) {
+                    body.style.opacity = '1';
+                    initializeAdminPanel();
+                } else { throw new Error("User is not an administrator."); }
+            } catch (error) {
+                console.error("Admin check failed:", error.message);
+                alert("You do not have permission to access this page.");
+                auth.signOut().then(() => window.location.replace('login.html'));
+            }
+        }
+        
+        function initializeAdminPanel() {
+            // General Navigation
+            sidebarLinks.forEach(link => link.addEventListener('click', handleNavigation));
+            menuButton.addEventListener('click', () => body.classList.add('sidebar-open'));
+            mobileOverlay.addEventListener('click', () => body.classList.remove('sidebar-open'));
+            if(logoutButton) { logoutButton.addEventListener('click', () => auth.signOut().then(() => window.location.href = 'login.html')); }
+            
+            // Modal Handling
+            modalCloseButton.addEventListener('click', () => adminModal.classList.add('hidden'));
+            adminModal.addEventListener('click', (e) => { if (e.target === adminModal) adminModal.classList.add('hidden'); });
+            adminModalBody.addEventListener('click', handleModalEvents);
+
+            // Table/Page Specific Event Listeners
+            usersTableBody.addEventListener('click', handleUserTableClicks);
+            userSearchInput.addEventListener('input', () => renderUsersTable(allUsersData));
+            
+            portsPendingTableBody.addEventListener('click', handlePortTableClicks);
+            portsAllTableBody.addEventListener('click', handlePortTableClicks);
+            allPortsSearchInput.addEventListener('input', renderAllPortsTable);
+            allPortsStatusFilter.addEventListener('change', renderAllPortsTable);
+
+            transactionsTableBody.addEventListener('click', handleTransactionTableClicks);
+            transactionSearchInput.addEventListener('input', renderTransactionsTable);
+            transactionTypeFilter.addEventListener('change', renderTransactionsTable);
+            transactionStatusFilter.addEventListener('change', renderTransactionsTable);
+
+            siteSettingsForm.addEventListener('submit', handleSettingsFormSubmit);
+            document.querySelectorAll('.modal-tab-link').forEach(tab => tab.addEventListener('click', handleTabNavigation));
+            
+            loadAllData();
+        }
+        
+        function handleNavigation(e) { /* ... same as before ... */
+            e.preventDefault();
+            const targetId = e.currentTarget.dataset.target;
+            if(!targetId) return;
+            pageContents.forEach(c => c.classList.add('hidden'));
+            document.getElementById(targetId)?.classList.remove('hidden');
+            sidebarLinks.forEach(n => n.classList.remove('active'));
+            document.querySelectorAll(`.admin-page [data-target="${targetId}"]`).forEach(l => l.classList.add('active'));
+            body.classList.remove('sidebar-open');
+        }
+
+        function handleTabNavigation(e) {
+            const tab = e.target.closest('.modal-tab-link');
+            if (!tab) return;
+            const content = tab.closest('.modal-tabs').nextElementSibling;
+            content.querySelectorAll('.modal-tab-pane').forEach(p => p.classList.add('hidden'));
+            tab.parentElement.querySelectorAll('.modal-tab-link').forEach(t => t.classList.remove('active'));
+            document.getElementById(tab.dataset.target)?.classList.remove('hidden');
+            tab.classList.add('active');
+        }
+
+        function generateRandomPortId() { /* ... same as before ... */
+            const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            const randomLetter = () => letters.charAt(Math.floor(Math.random() * letters.length));
+            const randomNumber = () => Math.floor(100 + Math.random() * 900);
+            return `CS-${randomLetter()}${randomLetter()}-${randomNumber()}`;
+        }
+        
+        // --- 3. DATA FETCHING & RENDERING ---
+        function loadAllData() {
+            loadDashboardStats();
+            loadAllUsers();
+            loadPendingInvestments();
+            loadAllTransactions();
+            loadAllPorts();
+            loadSiteSettings();
+        }
+        
+        async function loadDashboardStats() { /* ... same as before ... */
+            try {
+                const kycQuery = db.collection('users').where('kycStatus', '==', 'Pending').get();
+                const portsQuery = db.collectionGroup('activity').where('type', '==', 'investment').where('status', '==', 'Pending Approval').get();
+                const withdrawalsQuery = db.collectionGroup('activity').where('type', '==', 'withdrawal').where('status', '==', 'Pending').get();
+                const usersQuery = db.collection('users').get();
+                const [kycSnap, portsSnap, withdrawalsSnap, usersSnap] = await Promise.all([kycQuery, portsQuery, withdrawalsQuery, usersQuery]);
+                document.getElementById('pending-kyc-count').textContent = kycSnap.size;
+                document.getElementById('pending-ports-count').textContent = portsSnap.size;
+                document.getElementById('pending-withdrawals-count').textContent = withdrawalsSnap.size;
+                document.getElementById('total-users-count').textContent = usersSnap.size;
+            } catch (error) { console.error("Error loading dashboard stats:", error); }
+        }
+
+        async function loadAllUsers(){ /* ... same as before ... */
+            try{const usersSnap=await db.collection('users').orderBy('firstName').get();if(usersSnap.empty){usersTableBody.innerHTML='<tr><td colspan="5" class="empty-state">No users found.</td></tr>';return}
+            allUsersData=usersSnap.docs.map(doc=>({id:doc.id,...doc.data()}));renderUsersTable(allUsersData)}catch(error){console.error("Error loading users:",error);usersTableBody.innerHTML='<tr><td colspan="5" class="error-state">Could not load user data.</td></tr>'}
+        }
+        
+        async function loadPendingInvestments() { /* ... same as before ... */
+             try {
+                const investmentSnap = await db.collectionGroup('activity').where('status', '==', 'Pending Approval').where('type', '==', 'investment').get();
+                if (investmentSnap.empty) { if (portsPendingTableBody) portsPendingTableBody.innerHTML = '<tr><td colspan="5" class="empty-state">No pending port approvals.</td></tr>'; return; }
+                const investmentPromises = investmentSnap.docs.map(async (doc) => {
+                    const activityData = doc.data(); const activityId = doc.id; const userRef = doc.ref.parent.parent; const userDoc = await userRef.get();
+                    const userData = userDoc.exists ? userDoc.data() : { firstName: 'Unknown', lastName: 'User' };
+                    return { activityId, ...activityData, userId: userRef.id, userName: `${userData.firstName || ''} ${userData.lastName || ''}`.trim() };
+                });
+                pendingInvestmentsData = await Promise.all(investmentPromises);
+                renderPendingPortsTable();
+            } catch (error) { console.error("Error loading pending investments:", error); if (portsPendingTableBody) portsPendingTableBody.innerHTML = '<tr><td colspan="5" class="error-state">Could not load data.</td></tr>'; }
+        }
+
+        async function loadAllTransactions() { /* ... same as before ... */
+             try {
+                const activitySnap = await db.collectionGroup('activity').orderBy('timestamp', 'desc').get();
+                if (activitySnap.empty) { allTransactionsData = []; renderTransactionsTable(); return; }
+                const transactionPromises = activitySnap.docs.map(async (doc) => {
+                    const data = doc.data();
+                    if (['investment', 'withdrawal', 'earning'].includes(data.type)) {
+                        const userRef = doc.ref.parent.parent; const userDoc = await userRef.get();
+                        const userData = userDoc.exists ? userDoc.data() : { firstName: 'Unknown', lastName: 'User' };
+                        return { id: doc.id, ...data, userId: userRef.id, userName: `${userData.firstName || ''} ${userData.lastName || ''}`.trim() };
+                    } return null;
+                });
+                const results = await Promise.all(transactionPromises);
+                allTransactionsData = results.filter(Boolean);
+                renderTransactionsTable();
+            } catch (error) { console.error("Error loading transactions:", error); transactionsTableBody.innerHTML = '<tr><td colspan="7" class="error-state">Could not load transactions.</td></tr>'; }
+        }
+
+        async function loadAllPorts() { /* ... same as before ... */
+            try {
+                const portsSnap = await db.collectionGroup('ports').orderBy('purchaseDate', 'desc').get();
+                if (portsSnap.empty) { allPortsData = []; renderAllPortsTable(); return; }
+                const portPromises = portsSnap.docs.map(async (doc) => {
+                    const data = doc.data(); const userRef = doc.ref.parent.parent; const userDoc = await userRef.get();
+                    const userData = userDoc.exists ? userDoc.data() : { firstName: 'Unknown', lastName: 'User' };
+                    return { id: doc.id, ...data, userId: userRef.id, userName: `${userData.firstName || ''} ${userData.lastName || ''}`.trim() };
+                });
+                allPortsData = await Promise.all(portPromises);
+                renderAllPortsTable();
+            } catch (error) { console.error("Error loading all ports:", error); portsAllTableBody.innerHTML = '<tr><td colspan="6" class="error-state">Could not load ports. A database index may be required.</td></tr>'; }
+        }
+
+        async function loadSiteSettings() { /* ... same as before ... */
+            try {
+                const doc = await db.collection('settings').doc('payment').get();
+                if (doc.exists) { const settings = doc.data(); document.getElementById('nowpayments-link-input').value = settings.nowpayments_link || ''; document.getElementById('simplex-link-input').value = settings.simplex_link || ''; document.getElementById('btc-address-input').value = settings.btc_address || ''; } 
+                else { console.log("Payment settings document does not exist!"); }
+            } catch (error) { console.error("Error loading site settings:", error); alert('Could not load site settings.'); }
+        }
+        
+        function renderUsersTable(users){ /* ... same as before ... */
+            const searchTerm=userSearchInput.value.toLowerCase().trim();const filteredUsers=searchTerm?users.filter(user=>{const name=`${user.firstName||''} ${user.lastName||''}`.toLowerCase();const email=(user.email||'').toLowerCase();return name.includes(searchTerm)||email.includes(searchTerm)}):users;
+            if(filteredUsers.length===0){usersTableBody.innerHTML='<tr><td colspan="5" class="empty-state">No users match your search.</td></tr>';return}
+            let html='';filteredUsers.forEach(user=>{html+=createUserRow(user.id,user)});usersTableBody.innerHTML=html
+        }
+        function createUserRow(userId,user){const name=`${user.firstName||''} ${user.lastName||''}`.trim()||'N/A';const email=user.email||'N/A';const kycStatus=user.kycStatus||'Not Submitted';const isBanned=user.isBanned||false;const kycClass=kycStatus.toLowerCase().replace(/\s+/g,'-');const accountStatus=isBanned?'Banned':'Active';const accountClass=accountStatus.toLowerCase();return`<tr><td>${name}</td><td>${email}</td><td><span class="status-badge status-${kycClass}">${kycStatus}</span></td><td><span class="status-badge status-${accountClass}">${accountStatus}</span></td><td><button class="btn btn-sm btn-outline btn-manage" data-user-id="${userId}"><i class="fa-solid fa-user-pen"></i> Manage</button></td></tr>`}
+        
+        function renderPendingPortsTable() { /* ... same as before ... */
+            if (pendingInvestmentsData.length === 0) { portsPendingTableBody.innerHTML = '<tr><td colspan="5" class="empty-state">No pending port approvals.</td></tr>'; return; }
+            let html = pendingInvestmentsData.map(investment => createPendingPortRow(investment)).join(''); portsPendingTableBody.innerHTML = html;
+        }
+
+        function createPendingPortRow(investment) { /* ... same as before ... */
+            const userName = investment.userName || 'N/A'; const packageType = (investment.description || 'N/A').replace('Payment for ', ''); const region = 'N/A'; const date = investment.timestamp ? new Date(investment.timestamp.seconds * 1000).toLocaleDateString() : 'N/A';
+            return `<tr><td>${userName}</td><td>${packageType}</td><td>${region}</td><td>${date}</td><td><button class="btn btn-sm btn-success" data-action="approve-port-initial" data-activity-id="${investment.activityId}" data-user-id="${investment.userId}"><i class="fa-solid fa-check"></i> Approve</button></td></tr>`;
+        }
+
+        function renderAllPortsTable() { /* ... same as before ... */
+            let filteredPorts = [...allPortsData]; const searchTerm = allPortsSearchInput.value.toLowerCase().trim(); const statusFilter = allPortsStatusFilter.value;
+            if (searchTerm) { filteredPorts = filteredPorts.filter(p => p.userName.toLowerCase().includes(searchTerm) || p.locationName.toLowerCase().includes(searchTerm)); }
+            if (statusFilter) { filteredPorts = filteredPorts.filter(p => p.status === statusFilter); }
+            if (filteredPorts.length === 0) { portsAllTableBody.innerHTML = '<tr><td colspan="6" class="empty-state">No ports match your criteria.</td></tr>'; return; }
+            const html = filteredPorts.map(createAllPortsRow).join(''); portsAllTableBody.innerHTML = html;
+        }
+
+        function createAllPortsRow(port) { /* ... same as before ... */
+            const statusText=port.status||'Unknown';const statusClass=`status-${statusText.toLowerCase().replace(/\s+/g,'-')}`;let actionButton='';
+            if(statusText==='Active'){actionButton=`<button class="btn btn-sm btn-danger" data-action="deactivate-port" data-user-id="${port.userId}" data-port-id="${port.id}">Deactivate</button>`}
+            else if(statusText==='Inactive'){actionButton=`<button class="btn btn-sm btn-success" data-action="activate-port" data-user-id="${port.userId}" data-port-id="${port.id}">Activate</button>`}
+            return`<tr><td>${port.userName}</td><td>${port.locationName}</td><td>${port.portIdentifier}</td><td>${port.package}</td><td><span class="status-badge ${statusClass}">${statusText}</span></td><td>${actionButton}</td></tr>`
+        }
+        
+        function renderTransactionsTable() { /* ... same as before ... */
+            let filteredTransactions=[...allTransactionsData];const searchTerm=transactionSearchInput.value.toLowerCase().trim();const typeFilter=transactionTypeFilter.value;const statusFilter=transactionStatusFilter.value;
+            if(searchTerm){filteredTransactions=filteredTransactions.filter(t=>t.userName.toLowerCase().includes(searchTerm))}
+            if(typeFilter){filteredTransactions=filteredTransactions.filter(t=>t.type===typeFilter)}
+            if(statusFilter){filteredTransactions=filteredTransactions.filter(t=>(t.status||'')===statusFilter)}
+            if(filteredTransactions.length===0){transactionsTableBody.innerHTML='<tr><td colspan="7" class="empty-state">No transactions match your criteria.</td></tr>';return}
+            const html=filteredTransactions.map(createTransactionRow).join('');transactionsTableBody.innerHTML=html
+        }
+        function createTransactionRow(t) { /* ... same as before ... */
+            const date=t.timestamp?new Date(t.timestamp.seconds*1000).toLocaleDateString():'N/A';const user=t.userName||'N/A';const type=t.type||'unknown';let details=t.description||'N/A';if(type==='withdrawal'&&t.details&&t.details.address){const addr=t.details.address;details=`To: ${addr.substring(0,6)}...${addr.substring(addr.length-4)}`}
+            const amount=new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(t.amount||0);const amountClass=t.amount>0?'positive':'negative';const statusText=t.status||'N/A';const statusClass=statusText.toLowerCase().replace(/\s+/g,'-');let actionsHTML='';if(type==='withdrawal'&&statusText==='Pending'){actionsHTML=`<div class="table-actions"><button class="btn btn-sm btn-success" data-action="approve-withdrawal" data-user-id="${t.userId}" data-activity-id="${t.id}"><i class="fa-solid fa-check"></i></button><button class="btn btn-sm btn-danger" data-action="reject-withdrawal" data-user-id="${t.userId}" data-activity-id="${t.id}"><i class="fa-solid fa-times"></i></button></div>`}
+            return`<tr><td>${date}</td><td>${user}</td><td><span class="status-badge status-${type}">${type}</span></td><td>${details}</td><td class="${amountClass}">${amount}</td><td>${t.status?`<span class="status-badge status-${statusClass}">${statusText}</span>`:''}</td><td>${actionsHTML}</td></tr>`
+        }
+
+        // --- 4. MODAL LOGIC & CREATION ---
+        async function openManageUserModal(userId) { /* ... same as before ... */ 
+            adminModalTitle.textContent='Loading User...';adminModalBody.innerHTML='<p style="text-align:center;">Fetching user details...</p>';adminModal.classList.remove('hidden');try{const userRef=db.collection('users').doc(userId);const[userDoc,portsSnap]=await Promise.all([userRef.get(),userRef.collection('ports').orderBy('purchaseDate','desc').get()]);if(!userDoc.exists)throw new Error("User not found.");const userData=userDoc.data();const userPorts=portsSnap.docs.map(doc=>({id:doc.id,...doc.data()}));adminModalTitle.textContent=`Manage: ${userData.firstName||''} ${userData.lastName||''}`;adminModalBody.innerHTML=createManageUserModalHTML(userId,userData,userPorts)}catch(error){console.error("Error opening user modal:",error);adminModalBody.innerHTML=`<p class="error-state">Could not load user details. ${error.message}</p>`}
+        }
+        function createManageUserModalHTML(userId, user, ports) { /* ... same as before ... */
+            const isBanned=user.isBanned||false;const kycStatus=user.kycStatus||'Not Submitted';const createPortsListHTML=()=>{if(ports.length===0){return'<p style="text-align: center; color: var(--text-light); padding: 10px 0;">This user has no ports.</p>'}
+            let html='<ul class="user-ports-list">';ports.forEach(port=>{const statusText=port.status||'Unknown';const statusClass=`status-${statusText.toLowerCase().replace(/\s+/g,'-')}`;let actionButtonHTML='';if(port.status==='Active'){actionButtonHTML=`<button class="btn btn-sm btn-danger" data-action="deactivate-port" data-user-id="${userId}" data-port-id="${port.id}">Deactivate</button>`}
+            else if(port.status==='Inactive'){actionButtonHTML=`<button class="btn btn-sm btn-success" data-action="activate-port" data-user-id="${userId}" data-port-id="${port.id}">Activate</button>`}
+            html+=`<li class="port-list-item"><h5 class="port-list-item-name">${port.locationName||'Unnamed Port'}</h5><p class="port-list-item-id">${port.portIdentifier||'No ID'}</p><div class="port-list-item-status"><span class="status-badge ${statusClass}">${statusText}</span></div>${actionButtonHTML}</li>`});html+='</ul>';return html};
+            return`<div class="modal-tabs"><button class="modal-tab-link active" data-target="tab-actions">Actions</button><button class="modal-tab-link" data-target="tab-info">User Info</button></div><div class="modal-tab-content"><div id="tab-actions" class="modal-tab-pane"><div class="modal-card"><h4>KYC Verification</h4>${kycStatus==='Pending'&&user.kycDocumentUrl?`<div class="kyc-viewer"><a href="${user.kycDocumentUrl}" target="_blank"><img src="${user.kycDocumentUrl}" alt="KYC Document"></a></div>`:''}<p>Current Status: <strong>${kycStatus}</strong></p>${kycStatus==='Pending'?`<div class="modal-actions-group"><button class="btn btn-success" data-action="approve-kyc" data-user-id="${userId}"><i class="fa-solid fa-check"></i> Approve</button><button class="btn btn-danger" data-action="reject-kyc" data-user-id="${userId}"><i class="fa-solid fa-times"></i> Reject</button></div>`:''}</div><div class="modal-card"><h4>User's Ports</h4>${createPortsListHTML()}</div><div class="modal-card"><h4>Account Status</h4><p>Current Status: <strong>${isBanned?'Banned':'Active'}</strong></p><div class="modal-actions-group">${isBanned?`<button class="btn btn-success" data-action="unban-user" data-user-id="${userId}"><i class="fa-solid fa-lock-open"></i> Unban</button>`:`<button class="btn btn-danger" data-action="ban-user" data-user-id="${userId}"><i class="fa-solid fa-lock"></i> Ban</button>`}</div></div><div class="modal-card"><h4>Withdrawal Code</h4><div class="form-group"><label for="withdrawal-code-input">Set 6-Digit Code</label><input type="text" id="withdrawal-code-input" placeholder="Current: ${user.withdrawalCode||'Not Set'}" maxlength="6"></div><button class="btn btn-primary" data-action="set-code" data-user-id="${userId}">Save Code</button></div><div class="modal-card"><h4>Send Notification</h4><div class="form-group"><label for="notification-input">Message for user's dashboard</label><textarea id="notification-input" rows="3" placeholder="e.g., Your recent withdrawal has been approved."></textarea></div><button class="btn btn-primary" data-action="send-notification" data-user-id="${userId}">Send Notification</button></div></div><div id="tab-info" class="modal-tab-pane hidden"><div class="user-info-grid"><div class="info-item"><strong>User ID:</strong><span>${userId}</span></div><div class="info-item"><strong>Date Joined:</strong><span>${user.createdDate?new Date(user.createdDate.seconds*1000).toLocaleDateString():'N/A'}</span></div><div class="info-item"><strong>Email:</strong><span>${user.email||'N/A'}</span></div><div class="info-item"><strong>Address:</strong><span>${(user.address&&`${user.address.street}, ${user.address.city}, ${user.address.state} ${user.address.zip}, ${user.address.country}`)||'Not Provided'}</span></div><div class="info-item"><strong>Available Balance:</strong><span>$${(user.availableBalance||0).toFixed(2)}</span></div><div class="info-item"><strong>Lifetime Earnings:</strong><span>$${(user.lifetimeEarnings||0).toFixed(2)}</span></div><div class="info-item"><strong>Total Invested:</strong><span>$${(user.totalInvested||0).toFixed(2)}</span></div><div class="info-item"><strong>Active Ports:</strong><span>${ports.filter(p=>p.status==='Active').length}</span></div><div class="info-item"><strong>Ports Under Construction:</strong><span>${ports.filter(p=>p.status==='Under Construction').length}</span></div></div></div></div>`
+        }
+        function openApprovePortModal(userId, activityId) { /* ... same as before ... */
+            if (!adminModal || !adminModalTitle || !adminModalBody) return; const investment = pendingInvestmentsData.find(inv => inv.activityId === activityId && inv.userId === userId); if (!investment) { alert('Error: Could not find investment data.'); return; }
+            const packageName = (investment.description || 'N/A').replace('Payment for ', ''); const regionName = 'N/A';
+            adminModalTitle.textContent = `Approve Port Investment`;
+            adminModalBody.innerHTML = `<div class="modal-card"><h4>Investment Details</h4><p style="margin: 5px 0;"><strong>User:</strong> ${investment.userName}</p><p style="margin: 5px 0;"><strong>Package:</strong> ${packageName}</p><p style="margin: 5px 0;"><strong>Region:</strong> ${regionName}</p></div><div class="modal-card"><h4>Port Configuration</h4><div class="form-group"><label for="location-name-input">Location Name <span style="color:red;">*</span></label><input type="text" id="location-name-input" placeholder="e.g., Downtown Mall - Level 3"></div><div class="form-group"><label for="port-identifier-input">Port Identifier (Editable)</label><input type="text" id="port-identifier-input" value="${generateRandomPortId()}"></div></div><div class="modal-actions-group"><button class="btn btn-primary" data-action="approve-port-confirm" data-user-id="${userId}" data-activity-id="${activityId}"><i class="fa-solid fa-check"></i> Confirm Approval</button></div>`;
+            adminModal.classList.remove('hidden');
+        }
+
+        // --- 5. EVENT HANDLERS ---
+        function handleUserTableClicks(e){const button=e.target.closest('.btn-manage');if(button){const userId=button.dataset.userId;openManageUserModal(userId)}}
+        
+        async function handlePortTableClicks(e) {
+            const button = e.target.closest('button[data-action]');
+            if (!button) return;
+            const { action, userId, activityId, portId } = button.dataset;
+
+            // Renamed initial approval action to avoid conflict with modal's confirm button
+            if (action === 'approve-port-initial') {
+                openApprovePortModal(userId, activityId);
+            }
+            if (action === 'deactivate-port' || action === 'activate-port') {
+                const newStatus = action === 'deactivate-port' ? 'Inactive' : 'Active';
+                if (confirm(`Are you sure you want to set this port to '${newStatus}'?`)) {
+                    button.disabled = true;
+                    try {
+                        await db.collection('users').doc(userId).collection('ports').doc(portId).update({ status: newStatus });
+                        alert('Port status updated.');
+                        loadAllPorts(); // Just refresh the ports table
+                    } catch (error) { console.error('Error updating port status:', error); alert('Could not update port status.'); button.disabled = false; }
+                }
+            }
+        }
+        
+        async function handleTransactionTableClicks(e) { /* ... same as before ... */
+            const button = e.target.closest('button[data-action]'); if (!button) return;
+            const { action, userId, activityId } = button.dataset;
+            if (action === 'approve-withdrawal') {
+                if (confirm('Are you sure you want to approve this withdrawal?')) {
+                    button.disabled = true;
+                    try {
+                        const activityRef = db.collection('users').doc(userId).collection('activity').doc(activityId);
+                        await activityRef.update({ status: 'Completed' });
+                        alert('Withdrawal approved.'); loadAllData();
+                    } catch (error) { console.error('Error approving withdrawal:', error); alert('Could not approve withdrawal.'); button.disabled = false; }
+                }
+            }
+            if (action === 'reject-withdrawal') {
+                if (confirm('Are you sure you want to REJECT this withdrawal? The funds will be returned to the user.')) {
+                    button.disabled = true;
+                    try {
+                        await callRejectWithdrawalFunction(activityId);
+                        alert('Withdrawal rejected and funds returned to user.'); loadAllData();
+                    } catch (error) { console.error('Error rejecting withdrawal:', error); alert(`Could not reject withdrawal: ${error.message}`); button.disabled = false; }
+                }
+            }
+        }
+
+        async function callRejectWithdrawalFunction(activityId) { /* ... same as before ... */
+            const user = auth.currentUser; if (!user) throw new Error("Admin not authenticated."); const authToken = await user.getIdToken(true);
+            const functionUrl = `/.netlify/functions/reject-withdrawal`;
+            const response = await fetch(functionUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ authToken, activityId }) });
+            if (!response.ok) { const errorData = await response.json(); throw new Error(errorData.error || 'The backend function failed.'); }
+            return await response.json();
+        }
+
+        async function handleSettingsFormSubmit(e) { /* ... same as before ... */
+            e.preventDefault(); const button = e.target.querySelector('button[type="submit"]'); button.disabled = true; button.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving...';
+            try { const settings = { nowpayments_link: document.getElementById('nowpayments-link-input').value, simplex_link: document.getElementById('simplex-link-input').value, btc_address: document.getElementById('btc-address-input').value };
+                await db.collection('settings').doc('payment').set(settings, { merge: true });
+                alert('Site settings saved successfully!');
+            } catch (error) { console.error('Error saving site settings:', error); alert('An error occurred while saving settings.');
+            } finally { button.disabled = false; button.innerHTML = '<i class="fa-solid fa-save"></i> Save Settings'; }
+        }
+
+        async function handleModalEvents(e) {
+            // FIX 1: HANDLE MODAL TAB CLICKS
+            const tabLink = e.target.closest('.modal-tab-link');
+            if (tabLink) {
+                const targetId = tabLink.dataset.target;
+                const tabContent = tabLink.closest('.modal-tab-content, .modal-body'); // Find the parent container
+                
+                // Deactivate all tabs and hide all panes within this modal
+                tabLink.parentElement.querySelectorAll('.modal-tab-link').forEach(t => t.classList.remove('active'));
+                tabContent.querySelectorAll('.modal-tab-pane').forEach(p => p.classList.add('hidden'));
+
+                // Activate the clicked tab and show its pane
+                tabLink.classList.add('active');
+                tabContent.querySelector(`#${targetId}`).classList.remove('hidden');
+                return; // Stop further processing
+            }
+
+            const button = e.target.closest('button[data-action]'); 
+            if (!button) return;
+
+            const { action, userId, portId, activityId } = button.dataset;
+            if (!action) return;
+            
+            button.disabled = true; 
+            button.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+            
+            try {
+                const userRef = db.collection('users').doc(userId);
+                switch (action) {
+                    case 'approve-kyc': await userRef.update({ kycStatus: 'Verified' }); alert('KYC Approved!'); break;
+                    case 'reject-kyc': await userRef.update({ kycStatus: 'Rejected' }); alert('KYC Rejected!'); break;
+                    case 'ban-user': if (confirm('Are you sure?')) { await userRef.update({ isBanned: true }); alert('User has been banned.'); } break;
+                    case 'unban-user': await userRef.update({ isBanned: false }); alert('User has been unbanned.'); break;
+                    case 'set-code': const codeInput = document.getElementById('withdrawal-code-input'); const newCode = codeInput.value.trim(); if (newCode && /^\d{6}$/.test(newCode)) { await userRef.update({ withdrawalCode: newCode }); alert('Withdrawal code updated!'); codeInput.value = ''; codeInput.placeholder = `Current: ${newCode}`; } else { alert('Please enter a valid 6-digit code.'); } break;
+                    case 'send-notification': const notifInput = document.getElementById('notification-input'); const message = notifInput.value.trim(); if (message) { await userRef.update({ notificationMessage: message, showNotification: true }); alert('Notification sent!'); notifInput.value = ''; } else { alert('Please enter a message.'); } break;
+                    
+                    // FIX 2: HANDLE PORT DEACTIVATION/ACTIVATION FROM WITHIN THE MODAL
+                    case 'deactivate-port':
+                    case 'activate-port':
+                        const newStatus = action === 'deactivate-port' ? 'Inactive' : 'Active';
+                        if (confirm(`Are you sure you want to set this port to '${newStatus}'?`)) {
+                            await db.collection('users').doc(userId).collection('ports').doc(portId).update({ status: newStatus });
+                            alert('Port status updated successfully!');
+                            loadAllPorts(); // Reload the main table in the background
+                        }
+                        break;
+                    
+                    // FIX 3: HANDLE THE PORT APPROVAL CONFIRMATION
+                    case 'approve-port-confirm':
+                        const investment = pendingInvestmentsData.find(inv => inv.activityId === activityId);
+                        const locationName = document.getElementById('location-name-input').value.trim();
+                        const portIdentifier = document.getElementById('port-identifier-input').value.trim();
+                        
+                        if (!locationName || !portIdentifier) {
+                            alert('Location Name and Port Identifier are required.');
+                            // Re-enable button immediately for user to fix input
+                            button.disabled = false;
+                            button.innerHTML = '<i class="fa-solid fa-check"></i> Confirm Approval';
+                            return; // Stop execution
+                        }
+
+                        const newPort = {
+                            package: (investment.description || 'N/A').replace('Payment for ', ''),
+                            locationName: locationName,
+                            portIdentifier: portIdentifier,
+                            purchaseDate: firebase.firestore.FieldValue.serverTimestamp(),
+                            status: 'Under Construction',
+                            lastEarningTimestamp: null,
+                            totalEarnings: 0
+                        };
+
+                        // Firestore batch write to ensure atomicity
+                        const batch = db.batch();
+                        const newPortRef = userRef.collection('ports').doc(); // Auto-generate ID
+                        const activityRef = userRef.collection('activity').doc(activityId);
+
+                        batch.set(newPortRef, newPort);
+                        batch.update(activityRef, { status: 'Completed' });
+                        
+                        await batch.commit();
+                        
+                        alert('Port has been successfully approved and created!');
+                        adminModal.classList.add('hidden'); // Close modal on success
+                        loadAllData(); // Reload everything to reflect changes
+                        return; // Exit function early
+                }
+            } catch (error) { 
+                console.error(`Error performing action '${action}':`, error); 
+                alert('An error occurred. Please try again.');
+            } finally {
+                // Refresh the modal content unless it was closed
+                if (!adminModal.classList.contains('hidden')) { 
+                    await openManageUserModal(userId); 
+                }
+                // Refresh the main users table if a ban status changed
+                if(action === 'ban-user' || action === 'unban-user') { 
+                    loadAllUsers(); 
+                }
+            }
+        }
+    });
+    </script>
+</body>
+</html>

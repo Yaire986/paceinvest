@@ -1,0 +1,12 @@
+# netlify.toml
+
+[functions]
+  directory = "netlify/functions/"
+
+[functions."simulate-profits"]
+  # Runs at the top of every hour
+  schedule = "0 * * * *"
+
+[functions."run-maintenance"]
+  # Runs at 3 AM every Sunday
+  schedule = "0 3 * * 0"
