@@ -8,7 +8,7 @@ const admin = require('firebase-admin');
 // Your service account JSON should be stored as a single environment variable named GOOGLE_CREDENTIALS.
 if (admin.apps.length === 0) {
     admin.initializeApp({
-        credential: admin.credential.cert(JSON.parse(process.env.GOOGLE_CREDENTIALS))
+        credential: admin.credential.cert(JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT))
     });
 }
 

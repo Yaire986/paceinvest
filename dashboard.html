@@ -239,31 +239,24 @@
                 <p class="payment-instruction">You will be redirected to our secure partner NowPayments to complete your transaction.</p>
                 <button id="proceed-to-pay-crypto" class="btn btn-primary">Proceed to Pay</button>
             </div>
+            <!-- ================== HTML CHANGE IS HERE ================== -->
             <div id="card-payment-section" class="payment-section hidden">
-                <p class="payment-instruction">Copy the BTC address below, then click 'Proceed to Pay' to complete your purchase via Simplex.</p>
-                <div class="form-group">
-                    <label for="btc-address-display">BTC Deposit Address</label>
-                    <div class="address-container">
-                        <input type="text" id="btc-address-display" readonly>
-                        <button id="copy-btc-address-btn" class="btn btn-secondary">Copy</button>
-                    </div>
-                </div>
+                <p class="payment-instruction">You will be redirected to Stripe to complete your payment. Once finished, please return to this tab.</p>
                 <button id="proceed-to-pay-card" class="btn btn-primary">Proceed to Pay</button>
             </div>
+            <!-- ================== END OF HTML CHANGE ================== -->
         </div>
     </div>
 
     <div id="add-account-modal" class="modal-overlay hidden"><div class="modal-content"><div class="modal-header"><h2>Add New Bank Account</h2><button class="modal-close-button">&times;</button></div><form id="add-account-form"><div class="form-group"><label for="add-bank-name">Bank Name</label><input type="text" id="add-bank-name" placeholder="e.g., Chase Bank" required></div><div class="form-group"><label for="add-account-holder-name">Account Holder Name</label><input type="text" id="add-account-holder-name" placeholder="e.g., John Doe" required></div><div class="form-group"><label for="add-account-number">Account Number</label><input type="text" id="add-account-number" placeholder="Enter full account number" required></div><div class="form-group"><label for="add-routing-number">Routing Number</label><input type="text" id="add-routing-number" placeholder="Enter routing number" required></div><div class="form-group"><label for="add-account-type">Account Type</label><select id="add-account-type" required><option value="Checking">Checking</option><option value="Savings">Savings</option></select></div><div class="toggle-switch-container"><label for="set-primary-account-toggle">Set as primary account</label><label class="toggle-switch"><input type="checkbox" id="set-primary-account-toggle"><span class="toggle-slider"></span></label></div><div class="modal-actions"><button type="submit" id="submit-add-account" class="btn btn-primary">Add Account</button></div></form></div></div>
     <div id="view-account-modal" class="modal-overlay hidden"><div class="modal-content"><div class="modal-header"><h2>Account Details</h2><button class="modal-close-button">&times;</button></div><div class="view-account-details"><div class="detail-item"><span class="detail-label">Bank Name</span><span id="view-bank-name" class="detail-value"></span></div><div class="detail-item"><span class="detail-label">Account Holder</span><span id="view-account-holder" class="detail-value"></span></div><div class="detail-item"><span class="detail-label">Account Number</span><span id="view-account-number" class="detail-value"></span></div><div class="detail-item"><span class="detail-label">Routing Number</span><span id="view-routing-number" class="detail-value"></span></div><div class="detail-item"><span class="detail-label">Account Type</span><span id="view-account-type" class="detail-value"></span></div><div class="detail-item"><span class="detail-label">Primary</span><span id="view-is-primary" class="detail-value"></span></div></div><div class="modal-actions"><button id="delete-account-btn" class="btn btn-danger"><i class="fa-solid fa-trash"></i> Delete Account</button></div></div></div>
     
-    <!-- ================== HTML CHANGE IS HERE ================== -->
     <div id="withdraw-modal" class="modal-overlay hidden">
         <div class="modal-content">
             <div class="modal-header">
                 <h2>Withdraw Funds</h2>
                 <button class="modal-close-button">&times;</button>
             </div>
-            <!-- This new 'modal-body' div will contain all the scrolling form elements -->
             <div class="modal-body">
                 <div class="form-group">
                     <label for="withdraw-amount">Amount</label>
@@ -319,13 +312,12 @@
                     <input type="text" id="withdrawal-code" placeholder="Enter 6-digit withdrawal code" maxlength="6">
                     <p class="input-hint">Contact support if you don't have a withdrawal code.</p>
                 </div>
-            </div> <!-- End of the new 'modal-body' div -->
+            </div> 
             <div class="modal-actions">
                 <button id="submit-withdrawal" class="btn btn-primary">Submit Withdrawal</button>
             </div>
         </div>
     </div>
-    <!-- ================== END OF HTML CHANGE ================== -->
 
     <!-- Bottom Navigation for Mobile View -->
     <nav class="bottom-nav">
@@ -551,6 +543,7 @@ document.addEventListener('DOMContentLoaded', function() {
     async function handleProfileUpdate(e) { e.preventDefault();const btn=e.target.querySelector('button[type="submit"]');btn.disabled=true;btn.textContent='Saving...';try{const user=auth.currentUser;const ref=db.collection('users').doc(user.uid);let picUrl = currentUserData.profilePictureUrl || null; const file = profilePictureUpload.files[0]; if (file) { try { picUrl = await compressAndEncodeImage(file); } catch (compressionError) { console.error("Error compressing image:", compressionError); alert("The selected image could not be processed."); btn.disabled = false; btn.textContent = 'Save Changes'; return; } } if (picUrl && picUrl.length > 1048487) { alert("The selected image is too large even after compression. Please choose a smaller file."); btn.disabled = false; btn.textContent = 'Save Changes'; return; } await ref.update({firstName:document.getElementById('profile-first-name').value,lastName:document.getElementById('profile-last-name').value,address:{street:document.getElementById('profile-address').value,city:document.getElementById('profile-city').value,state:document.getElementById('profile-state').value,zip:document.getElementById('profile-zip').value},profilePictureUrl:picUrl});alert('Profile updated!');fetchAllData(user);}catch(err){console.error("Error updating profile:",err);alert("An error occurred.");}finally{btn.disabled=false;btn.textContent='Save Changes';}}
     async function handleKycUpload() { if (!kycFile) return alert('Please choose a file.'); const btn = submitKycBtn; btn.disabled = true; btn.textContent = 'Uploading...'; try { const user = auth.currentUser; let docUrl; try { docUrl = await compressAndEncodeImage(kycFile); } catch (compressionError) { console.error("Error compressing KYC image:", compressionError); alert("The selected ID image could not be processed."); btn.disabled = false; btn.textContent = 'Upload for Verification'; return; } if (docUrl.length > 1048487) { alert("The ID image is too large even after compression. Please use a smaller file."); btn.disabled = false; btn.textContent = 'Upload for Verification'; return; } await db.collection('users').doc(user.uid).update({ kycDocumentUrl: docUrl, kycStatus: 'Pending' }); alert('KYC document submitted!'); fetchAllData(user); } catch (err) { console.error("Error submitting KYC:", err); alert("An error occurred while submitting your document."); } finally { btn.disabled = false; btn.textContent = 'Upload for Verification'; } }
     
+    // ================== JAVASCRIPT CHANGE IS HERE ==================
     async function handlePaymentSubmission(paymentMethod) {
         const user = auth.currentUser;
         if (!user) return alert("You are not logged in.");
@@ -564,10 +557,12 @@ document.addEventListener('DOMContentLoaded', function() {
         btn.textContent = 'Processing...';
 
         try {
+            let paymentUrl = '';
+            
             if (context === 'investment') {
                 const { package, region } = investmentState;
                 const activityDesc = `Payment for ${package}`;
-                const activityRef = await db.collection('users').doc(user.uid).collection('activity').add({
+                await db.collection('users').doc(user.uid).collection('activity').add({
                     type: 'investment',
                     status: 'Pending Approval',
                     description: activityDesc,
@@ -578,7 +573,20 @@ document.addEventListener('DOMContentLoaded', function() {
                     package, region, status: 'Pending Approval', locationName: 'Pending Site Selection', 
                     purchaseDate: firebase.firestore.FieldValue.serverTimestamp()
                 });
+                
+                // Determine the correct redirect URL based on method and package
+                if (paymentMethod === 'crypto') {
+                    paymentUrl = paymentSettings.nowpayments_link;
+                } else if (paymentMethod === 'card') {
+                    if (package === 'Standard Port') {
+                        paymentUrl = paymentSettings.stripe_standard_port_link;
+                    } else if (package === 'High-Traffic Pro Port') {
+                        paymentUrl = paymentSettings.stripe_pro_port_link;
+                    }
+                }
+                
                 goToInvestStep(4);
+
             } else if (context === 'deposit') {
                 const activityRef = await db.collection('users').doc(user.uid).collection('activity').add({
                     type: 'deposit',
@@ -587,14 +595,24 @@ document.addEventListener('DOMContentLoaded', function() {
                     amount: amount,
                     timestamp: firebase.firestore.FieldValue.serverTimestamp()
                 });
+                
+                if (paymentMethod === 'crypto') {
+                    paymentUrl = paymentSettings.nowpayments_link;
+                } else if (paymentMethod === 'card') {
+                    // Assuming a general deposit link for Stripe, or handle as needed
+                    paymentUrl = paymentSettings.stripe_standard_port_link; // Fallback or specific deposit link
+                }
+                
                 await callUpdateBalanceFunction(activityRef.id);
-                 alert('Your deposit has been recorded and your balance will be updated shortly.');
+                alert('Your deposit has been recorded and your balance will be updated shortly.');
             }
 
-            const paymentUrl = (paymentMethod === 'crypto') ? paymentSettings.nowpayments_link : paymentSettings.simplex_link;
             if (paymentUrl) {
                 window.open(paymentUrl, 'paymentWindow', `width=500,height=700`);
+            } else {
+                alert('Payment configuration is missing. Please contact support.');
             }
+
             closeModal(paymentModal);
             if (context !== 'investment') fetchAllData(user);
 
@@ -606,6 +624,7 @@ document.addEventListener('DOMContentLoaded', function() {
             btn.textContent = 'Proceed to Pay';
         }
     }
+    // ================== END OF JAVASCRIPT CHANGE ==================
     
     let investmentState = {};
     function goToInvestStep(stepNumber) { investSteps.forEach(s => s.classList.add('hidden')); document.getElementById(`invest-step-${stepNumber}`)?.classList.remove('hidden'); }
@@ -632,7 +651,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // --- 6. EVENT LISTENERS ---
     function handleNavigation(e) { e.preventDefault();const targetId=e.currentTarget.dataset.target;if(!targetId)return;pageContents.forEach(c=>c.classList.add('hidden'));document.getElementById(targetId)?.classList.remove('hidden');navLinks.forEach(n=>n.classList.remove('active'));document.querySelectorAll(`[data-target="${targetId}"]`).forEach(l=>l.classList.add('active'));}
-    function handleProfileTabNavigation(e) { const id=e.currentTarget.dataset.target;profileTabLinks.forEach(l=>l.classList.remove('active'));e.currentTarget.classList.add('active');profileTabContents.forEach(c=>c.classList.toggle('hidden',c.id!==id));}
+    function handleProfileTabNavigation(e) { const id=e.currentTarget.dataset.target;profileTabLinks.forEach(l=>l.classList.remove('active'));e.currentTarget.classList.add('active');profileTabContents.forEach(c=>c.id!==id?c.classList.add('hidden'):c.classList.remove('hidden'));}
     const handleLogout = () => auth.signOut().then(() => { window.location.href = 'login.html'; });
     auth.onAuthStateChanged(user => { if (user && user.emailVerified) { fetchAllData(user); } else { window.location.replace('login.html'); } });
     navLinks.forEach(link => link.addEventListener('click', handleNavigation));
@@ -668,7 +687,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (linkedAccountsListEl) { linkedAccountsListEl.addEventListener('click', e => { const item = e.target.closest('.linked-account-item'); if (item) { openViewAccountModal(item.dataset.accountId); } }); }
     if (deleteAccountBtn) { deleteAccountBtn.addEventListener('click', handleDeleteAccount); }
     if (payWithCryptoBtn) { payWithCryptoBtn.addEventListener('click', () => { cryptoPaymentSection.classList.remove('hidden'); cardPaymentSection.classList.add('hidden'); paymentModal.dataset.paymentMethod = 'crypto'; }); }
-    if (payWithCardBtn) { payWithCardBtn.addEventListener('click', () => { cardPaymentSection.classList.remove('hidden'); cryptoPaymentSection.classList.add('hidden'); paymentModal.dataset.paymentMethod = 'card'; if(paymentSettings.btc_address) { btcAddressDisplay.value = paymentSettings.btc_address; } else { btcAddressDisplay.value = "Could not load address."; } }); }
+    if (payWithCardBtn) { payWithCardBtn.addEventListener('click', () => { cardPaymentSection.classList.remove('hidden'); cryptoPaymentSection.classList.add('hidden'); paymentModal.dataset.paymentMethod = 'card'; }); }
     if (portsListEl) { portsListEl.addEventListener('click', e => { const item = e.target.closest('.port-item'); if (item && item.dataset.portId) { openPortDetailsModal(item.dataset.portId); } }); }
     if (proceedToPayCryptoBtn) { proceedToPayCryptoBtn.addEventListener('click', () => handlePaymentSubmission('crypto')); }
     if (proceedToPayCardBtn) { proceedToPayCardBtn.addEventListener('click', () => handlePaymentSubmission('card')); }
