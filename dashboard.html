@@ -543,7 +543,7 @@ document.addEventListener('DOMContentLoaded', function() {
     async function handleProfileUpdate(e) { e.preventDefault();const btn=e.target.querySelector('button[type="submit"]');btn.disabled=true;btn.textContent='Saving...';try{const user=auth.currentUser;const ref=db.collection('users').doc(user.uid);let picUrl = currentUserData.profilePictureUrl || null; const file = profilePictureUpload.files[0]; if (file) { try { picUrl = await compressAndEncodeImage(file); } catch (compressionError) { console.error("Error compressing image:", compressionError); alert("The selected image could not be processed."); btn.disabled = false; btn.textContent = 'Save Changes'; return; } } if (picUrl && picUrl.length > 1048487) { alert("The selected image is too large even after compression. Please choose a smaller file."); btn.disabled = false; btn.textContent = 'Save Changes'; return; } await ref.update({firstName:document.getElementById('profile-first-name').value,lastName:document.getElementById('profile-last-name').value,address:{street:document.getElementById('profile-address').value,city:document.getElementById('profile-city').value,state:document.getElementById('profile-state').value,zip:document.getElementById('profile-zip').value},profilePictureUrl:picUrl});alert('Profile updated!');fetchAllData(user);}catch(err){console.error("Error updating profile:",err);alert("An error occurred.");}finally{btn.disabled=false;btn.textContent='Save Changes';}}
     async function handleKycUpload() { if (!kycFile) return alert('Please choose a file.'); const btn = submitKycBtn; btn.disabled = true; btn.textContent = 'Uploading...'; try { const user = auth.currentUser; let docUrl; try { docUrl = await compressAndEncodeImage(kycFile); } catch (compressionError) { console.error("Error compressing KYC image:", compressionError); alert("The selected ID image could not be processed."); btn.disabled = false; btn.textContent = 'Upload for Verification'; return; } if (docUrl.length > 1048487) { alert("The ID image is too large even after compression. Please use a smaller file."); btn.disabled = false; btn.textContent = 'Upload for Verification'; return; } await db.collection('users').doc(user.uid).update({ kycDocumentUrl: docUrl, kycStatus: 'Pending' }); alert('KYC document submitted!'); fetchAllData(user); } catch (err) { console.error("Error submitting KYC:", err); alert("An error occurred while submitting your document."); } finally { btn.disabled = false; btn.textContent = 'Upload for Verification'; } }
     
-    // ================== JAVASCRIPT CHANGE IS HERE ==================
+        // ================== JAVASCRIPT CHANGE IS HERE ==================
     async function handlePaymentSubmission(paymentMethod) {
         const user = auth.currentUser;
         if (!user) return alert("You are not logged in.");
@@ -556,9 +556,14 @@ document.addEventListener('DOMContentLoaded', function() {
         btn.disabled = true;
         btn.textContent = 'Processing...';
 
+        // 1. Open a blank window immediately. This is the key change.
+        // Safari allows this because it's a direct result of the user's click.
+        const paymentWindow = window.open('', 'paymentWindow', `width=500,height=700`);
+
         try {
             let paymentUrl = '';
             
+            // 2. Now, perform all the async database work.
             if (context === 'investment') {
                 const { package, region } = investmentState;
                 const activityDesc = `Payment for ${package}`;
@@ -574,7 +579,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     purchaseDate: firebase.firestore.FieldValue.serverTimestamp()
                 });
                 
-                // Determine the correct redirect URL based on method and package
                 if (paymentMethod === 'crypto') {
                     paymentUrl = paymentSettings.nowpayments_link;
                 } else if (paymentMethod === 'card') {
@@ -599,17 +603,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (paymentMethod === 'crypto') {
                     paymentUrl = paymentSettings.nowpayments_link;
                 } else if (paymentMethod === 'card') {
-                    // Assuming a general deposit link for Stripe, or handle as needed
-                    paymentUrl = paymentSettings.stripe_standard_port_link; // Fallback or specific deposit link
+                    paymentUrl = paymentSettings.stripe_standard_port_link; // Fallback or your general deposit link
                 }
                 
                 await callUpdateBalanceFunction(activityRef.id);
                 alert('Your deposit has been recorded and your balance will be updated shortly.');
             }
 
-            if (paymentUrl) {
-                window.open(paymentUrl, 'paymentWindow', `width=500,height=700`);
-            } else {
+            // 3. Now, redirect the window we already opened.
+            if (paymentUrl && paymentWindow) {
+                paymentWindow.location.href = paymentUrl;
+            } else if (!paymentUrl) {
+                if(paymentWindow) paymentWindow.close(); // Close the blank window if we don't have a URL
                 alert('Payment configuration is missing. Please contact support.');
             }
 
@@ -619,6 +624,7 @@ document.addEventListener('DOMContentLoaded', function() {
         } catch (err) {
             console.error(`Error processing ${context}:`, err);
             alert(`An error occurred during your ${context}. Please try again.`);
+            if(paymentWindow) paymentWindow.close(); // Close the blank window on error
         } finally {
             btn.disabled = false;
             btn.textContent = 'Proceed to Pay';
