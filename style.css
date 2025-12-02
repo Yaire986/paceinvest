@@ -4862,12 +4862,18 @@ details[open] > summary.faq-question::after {
 .dashboard-page .modal-content {
     background-color: var(--card-bg);
     border-radius: 16px;
-    padding: 30px;
+    padding: 0; /* REMOVE global padding here, we will move it to children */
     width: 100%;
     max-width: 550px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-    transform: scale(0.95);
+    transform: scale(1);
     transition: transform 0.3s ease;
+    
+    /* NEW FLEX PROPERTIES FOR SCROLLING */
+    display: flex;
+    flex-direction: column;
+    max-height: 90vh; /* Limits height to 90% of screen height */
+    position: relative;
 }
 
 .dashboard-page .modal-overlay:not(.hidden) .modal-content {
@@ -4878,12 +4884,21 @@ details[open] > summary.faq-question::after {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    padding-bottom: 20px;
-    margin-bottom: 20px;
+    padding: 25px 30px 20px 30px; /* Add padding here */
     border-bottom: 1px solid var(--border-color);
+    flex-shrink: 0; /* Prevents header from shrinking */
+    margin-bottom: 0; /* Reset margin */
 }
 .dashboard-page .modal-header h2 { margin: 0; font-size: 1.5rem; }
 
+.dashboard-page .modal-body {
+    padding: 20px 30px; /* Add padding here */
+    overflow-y: auto;   /* Enable vertical scrolling */
+    flex-grow: 1;       /* Take up remaining space */
+    
+    /* Reset the previous specific max-height if it existed */
+    max-height: none !important; 
+}
 .dashboard-page .modal-close-button {
     background: none;
     border: none;
@@ -4901,9 +4916,27 @@ details[open] > summary.faq-question::after {
 }
 
 .dashboard-page .modal-actions {
-    margin-top: 30px;
-    padding-top: 20px;
-    border-top: 1px solid var(--border-color);
+    margin-top: 0;
+    padding: 20px 30px 30px 30px; /* Add padding here */
+    border-top: 1px solid var(--border-color); /* Optional: Adds line above button */
+    flex-shrink: 0; /* Prevents button area from shrinking */
+    background-color: var(--card-bg); /* Ensures background covers scrolling content */
+    border-bottom-left-radius: 16px;
+    border-bottom-right-radius: 16px;
+}
+
+@media screen and (max-width: 479px) {
+    .dashboard-page .modal-content {
+        max-height: 85vh; /* Slightly smaller on mobile to account for browser bars */
+        width: 95%; /* Use almost full width */
+    }
+    
+    .dashboard-page .modal-header,
+    .dashboard-page .modal-body,
+    .dashboard-page .modal-actions {
+        padding-left: 20px;
+        padding-right: 20px;
+    }
 }
 
 /* New Status Badge for "Inactive" */
@@ -5012,6 +5045,37 @@ details[open] > summary.faq-question::after {
 .dashboard-page .card .activity-list .activity-item:last-child {
     border-bottom: none;
     padding-bottom: 20px;
+}
+
+/* Styling for the Transaction Filter */
+.dashboard-page .transaction-filter-wrapper select {
+    padding: 6px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    background-color: var(--secondary-bg);
+    color: var(--text-dark);
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    outline: none;
+    
+    /* Remove default appearance for custom arrow (optional but cleaner) */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%236c757d%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22/%3E%3C/svg%3E');
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 10px;
+    padding-right: 30px; /* Make room for arrow */
+}
+
+.dashboard-page .transaction-filter-wrapper select:hover {
+    background-color: #e2e6ea;
+}
+
+.dashboard-page .transaction-filter-wrapper select:focus {
+    border-color: var(--primary-color);
 }
 
 /* Modal Form Styles */
@@ -6541,17 +6605,25 @@ details[open] > summary.faq-question::after {
 }
 
 .kpi-value {
-    font-size: 1.75rem;
+    /* Use clamp to make font responsive: min 1.3rem, ideal 5vw, max 1.75rem */
+    font-size: clamp(1.3rem, 5vw, 1.75rem); 
     font-weight: 700;
-    line-height: 1;
+    line-height: 1.1;
     margin: 0;
+    
+    /* Flexbox to keep number and unit aligned, but allow wrapping if necessary */
+    display: flex;
+    justify-content: center;
+    align-items: baseline;
+    flex-wrap: wrap; 
 }
 
 .kpi-unit {
-    font-size: 1rem;
+    font-size: 0.6em; /* Unit is 60% size of the number */
     font-weight: 500;
     color: var(--text-light);
-    margin-left: 2px;
+    margin-left: 4px;
+    white-space: nowrap; /* Keeps "kWh" together */
 }
 
 .kpi-label {
@@ -6599,4 +6671,163 @@ details[open] > summary.faq-question::after {
 .btn-outline-danger:hover {
     background-color: #dc3545;
     color: white;
+}
+
+/* --- TRANSACTION MODAL STYLES --- */
+.txn-modal-body {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.txn-hero-section {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 10px 0;
+}
+
+.txn-big-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.75rem;
+    background-color: var(--secondary-bg);
+    color: var(--text-dark);
+}
+
+.txn-hero-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.txn-hero-text span {
+    font-size: 0.9rem;
+    color: var(--text-light);
+}
+
+.txn-hero-text h1 {
+    margin: 5px 0;
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.modal-divider {
+    border: 0;
+    border-top: 1px solid var(--border-color);
+    margin: 0;
+    width: 100%;
+}
+
+.port-info-item.full-width {
+    grid-column: 1 / -1; /* Span all columns */
+}
+
+/* Make list items look clickable */
+.activity-item {
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.activity-item:hover {
+    background-color: var(--secondary-bg);
+    border-radius: 8px; /* Optional: adds rounded corners on hover */
+    padding-left: 10px; /* Optional: slight indent on hover */
+    padding-right: 10px;
+    margin-left: -10px; /* Compensate for padding to keep alignment */
+    margin-right: -10px;
+}
+
+/* --- FIXES FOR TRANSACTION MODAL --- */
+
+/* 1. Ensure the hidden class works with highest priority inside the modal */
+.txn-modal-body .hidden {
+    display: none !important;
+}
+
+/* 2. Remove the "shade" (background) from the status text in the modal header */
+.txn-hero-text .status-badge {
+    background-color: transparent !important; /* Removes the green/yellow pill background */
+    padding: 0;
+    margin-top: 5px;
+    /* The text color (green/red/yellow) will remain based on the class */
+}
+
+/* Optional: Make the status text slightly larger since it has no background now */
+.txn-hero-text .status-badge {
+    font-size: 1rem; 
+}
+
+/* --- SESSION STATS GRID (MODAL) --- */
+.session-stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-top: 15px;
+    padding: 15px;
+    background-color: var(--secondary-bg);
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+}
+
+.stat-box {
+    display: flex;
+    flex-direction: column;
+}
+
+.stat-box small {
+    font-size: 0.75rem;
+    color: var(--text-light);
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+}
+
+.stat-box p {
+    margin: 0;
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--text-dark);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.stat-box i {
+    color: var(--primary-color);
+    font-size: 0.9rem;
+    width: 16px;
+    text-align: center;
+}
+
+/* --- MOBILE FIX FOR CARD HEADERS & FILTERS --- */
+@media screen and (max-width: 479px) {
+    /* Stack the Header Title and the Control (Filter/Button) vertically */
+    .dashboard-page .card-header {
+        flex-direction: column;
+        align-items: flex-start; /* Align everything to the left */
+        gap: 15px; /* Add space between Title and Filter */
+    }
+
+    /* Ensure the Title doesn't have extra bottom margin interfering with the gap */
+    .dashboard-page .card-header h3 {
+        margin-bottom: 0;
+        width: 100%;
+    }
+
+    /* Make the Filter Container full width */
+    .dashboard-page .transaction-filter-wrapper {
+        width: 100%;
+    }
+
+    /* Make the Dropdown itself full width for easier tapping */
+    .dashboard-page .transaction-filter-wrapper select {
+        width: 100%;
+        padding: 10px 12px; /* Slightly larger touch target */
+    }
 }

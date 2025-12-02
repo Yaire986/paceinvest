@@ -7,6 +7,10 @@
   # Runs at the top of every hour
   schedule = "0 * * * *"
 
+[functions.reset-monthly-stats]
+  schedule = "0 0 1 * *" 
+  # "0 0 1 * *" means: At minute 0, hour 0, on day 1 of every month.
+
 [functions."run-maintenance"]
   # Runs at 3 AM every Sunday
   schedule = "0 3 * * 0"
