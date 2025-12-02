@@ -4804,6 +4804,11 @@ details[open] > summary.faq-question::after {
 .dashboard-page .port-value {
     font-size: 1.1rem;
     font-weight: 600;
+    overflow-wrap: break-word;  /* Standard property to wrap long words */
+    word-break: break-word;     /* Forces break for very long strings like Crypto addresses */
+    white-space: normal;        /* Ensures text is allowed to wrap */
+    max-width: 100%;            /* Ensures it stays within the container */
+    display: block;             /* Helps container calculate width correctly */
 }
 
 .dashboard-page .port-status {
