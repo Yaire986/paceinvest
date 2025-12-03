@@ -784,9 +784,9 @@ if (kpiCo2OffsetEl) kpiCo2OffsetEl.textContent = formatKpiNumber(currentUserData
             </div>
             <h3 style="margin-bottom: 10px; font-size: 1.25rem;">Start Your Investment</h3>
             <p style="color: var(--text-light); margin-bottom: 20px;">You don't have any active charging ports yet.</p>
-            <button class="btn btn-primary" onclick="document.querySelector('[data-target=\'invest-content\']').click()">
-                Invest in a Port
-            </button>
+            <button class="btn btn-primary empty-state-invest-btn">
+    Invest in a Port
+</button>
         </div>
     `;
 }
@@ -1514,7 +1514,21 @@ function formatKpiNumber(num) {
     if (addAccountForm) { addAccountForm.addEventListener('submit', handleSubmitAddAccount); }
     if (linkedAccountsListEl) { linkedAccountsListEl.addEventListener('click', e => { const item = e.target.closest('.linked-account-item'); if (item) { openViewAccountModal(item.dataset.accountId); } }); }
     if (deleteAccountBtn) { deleteAccountBtn.addEventListener('click', handleDeleteAccount); }
-    if (portsListEl) { portsListEl.addEventListener('click', e => { const item = e.target.closest('.port-item'); if (item && item.dataset.portId) { openPortDetailsModal(item.dataset.portId); } }); }
+    if (portsListEl) {
+    portsListEl.addEventListener('click', e => {
+        // 1. Handle clicking on a Port Card
+        const item = e.target.closest('.port-item');
+        if (item && item.dataset.portId) {
+            openPortDetailsModal(item.dataset.portId);
+        }
+
+        // 2. Handle clicking the "Invest in a Port" button (Empty State)
+        if (e.target.closest('.empty-state-invest-btn')) {
+            const investLink = document.querySelector('a[data-target="invest-content"]');
+            if (investLink) investLink.click();
+        }
+    });
+}
     if (walletWithdrawBtn) { walletWithdrawBtn.addEventListener('click', () => openModal(withdrawModal)); }
     if (withdrawMethodSelect) { 
         withdrawMethodSelect.addEventListener('change', () => { 
