@@ -693,7 +693,7 @@ document.addEventListener('DOMContentLoaded', function() {
             case 'maintenance': c = 'fa-solid fa-screwdriver-wrench'; b = '#eef0f3'; o = '#6c757d'; break;
         }
         
-        let f = d.amount ? `${p}$${Math.abs(d.amount).toFixed(2)}` : (d.type === 'maintenance' ? '' : '$0.00');
+        let f = d.amount ? `${p}$${Math.abs(d.amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : (d.type === 'maintenance' ? '' : '$0.00');
         let desc = (d.description || '').replace('Deposit Request', 'Deposit').replace(' (Resolved)', '<span style="color:#158a4a;"> (Resolved)</span>').replace('Payment for', 'Package Payment:').split(' ').map(word => word.length > 30 ? `${word.substring(0, 9)}...${word.substring(word.length - 12)}` : word).join(' ');
         
         i.innerHTML = `<div class="activity-icon" style="background-color:${b};color:${o};"><i class="${c}"></i></div><div class="activity-details"><p>${desc}</p><span>${s}</span></div><p class="activity-amount ${a}">${f}</p>`;
@@ -746,7 +746,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
                     <div class="port-info-item">
                         <span class="port-label">Monthly Earnings</span>
-                        <span class="port-value">$${m.toFixed(2)}</span>
+                        <span class="port-value">$${m.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                     </div>
                     <div class="port-info-item">
                         <span class="port-label">Utilization</span>
@@ -769,7 +769,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function generateRandomPortId() { const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'; const randomLetter = letters.charAt(Math.floor(Math.random() * letters.length)); const randomNumber = Math.floor(10 + Math.random() * 990); return `Port #${randomLetter}-${randomNumber}`; }
     
     // --- 3. DATA FETCHING (No changes here) ---
-    function fetchAllData(user) { const uRef=db.collection('users').doc(user.uid);Promise.all([uRef.get(),uRef.collection('activity').orderBy('timestamp','desc').get(),uRef.collection('ports').orderBy('purchaseDate', 'desc').get(),uRef.collection('linkedAccounts').orderBy('isPrimary','desc').get(), db.collection('settings').doc('payment').get()]).then(([userDoc,actSnap,portSnap,accSnap, paymentSettingsDoc])=>{if(userDoc.exists){currentUserData=userDoc.data(); setupChatListener(user.uid);userNameDesktop.textContent=currentUserData.firstName||'User';userNameMobile.textContent=currentUserData.firstName||'User';let bal=(currentUserData.availableBalance||0).toFixed(2);balanceAmountEl.textContent=bal;walletBalanceEl.textContent=bal;maxWithdrawBalanceEl.textContent=bal;balanceSubtitleEl.textContent=`$${(currentUserData.monthlyEarnings||0).toFixed(2)} earnings this month`;
+    function fetchAllData(user) { const uRef=db.collection('users').doc(user.uid);Promise.all([uRef.get(),uRef.collection('activity').orderBy('timestamp','desc').get(),uRef.collection('ports').orderBy('purchaseDate', 'desc').get(),uRef.collection('linkedAccounts').orderBy('isPrimary','desc').get(), db.collection('settings').doc('payment').get()]).then(([userDoc,actSnap,portSnap,accSnap, paymentSettingsDoc])=>{if(userDoc.exists){currentUserData=userDoc.data(); setupChatListener(user.uid);userNameDesktop.textContent=currentUserData.firstName||'User';userNameMobile.textContent=currentUserData.firstName||'User';let bal=(currentUserData.availableBalance||0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });balanceAmountEl.textContent=bal;walletBalanceEl.textContent=bal;maxWithdrawBalanceEl.textContent=bal;balanceSubtitleEl.textContent=`$${(currentUserData.monthlyEarnings||0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} earnings this month`;
     // Populate the new KPI cards
             const activePortsCount = portSnap.docs.filter(doc => doc.data().status === 'Active').length;
             
@@ -777,7 +777,7 @@ document.addEventListener('DOMContentLoaded', function() {
 if (kpiKwhDeliveredEl) kpiKwhDeliveredEl.textContent = formatKpiNumber(currentUserData.monthlyKwhDelivered || 0);
 if (kpiChargingSessionsEl) kpiChargingSessionsEl.textContent = formatKpiNumber(currentUserData.monthlySessions || 0);
 if (kpiCo2OffsetEl) kpiCo2OffsetEl.textContent = formatKpiNumber(currentUserData.monthlyCo2Offset || 0);
-    document.getElementById('profile-first-name').value=currentUserData.firstName||'';document.getElementById('profile-last-name').value=currentUserData.lastName||'';document.getElementById('profile-email').value=user.email;document.getElementById('profile-address').value=currentUserData.address?.street||'';document.getElementById('profile-city').value=currentUserData.address?.city||'';document.getElementById('profile-state').value=currentUserData.address?.state||'';document.getElementById('profile-zip').value=currentUserData.address?.zip||'';document.getElementById('profile-country').value=currentUserData.region||'';if(currentUserData.profilePictureUrl){profilePictureImg.src=currentUserData.profilePictureUrl;}kycUploadSection.classList.toggle('hidden',currentUserData.kycStatus==='Pending'||currentUserData.kycStatus==='Verified');kycPendingSection.classList.toggle('hidden',currentUserData.kycStatus!=='Pending');kycVerifiedSection.classList.toggle('hidden',currentUserData.kycStatus!=='Verified');referralCountEl.textContent=currentUserData.referralCount||0;referralEarningsEl.textContent=`$${(currentUserData.referralEarnings||0).toFixed(2)}`;referralLinkInput.value=`chargepace.com/register.html?ref=${user.uid}` } if (paymentSettingsDoc.exists) { paymentSettings = paymentSettingsDoc.data(); } else { console.log("Payment settings not found!"); } activityListEl.innerHTML='';let rAct=actSnap.docs.slice(0,5);if(rAct.length===0){activityListEl.innerHTML='<li style="padding:20px 0;text-align:center;color:var(--text-light);">No recent activity.</li>';}else{rAct.forEach(doc=>activityListEl.appendChild(createActivityItem(doc.data())));}walletTransactionListEl.innerHTML='';let fAct = actSnap.docs.filter(doc => ['earning', 'deposit', 'withdrawal', 'investment', 'maintenance'].includes(doc.data().type));allTransactions = fAct.map(doc => doc.data()).sort((a, b) => b.timestamp - a.timestamp);renderTransactionList('all');if(fAct.length===0){walletTransactionListEl.innerHTML='<li style="padding:20px;text-align:center;color:var(--text-light);">No transactions found.</li>';}else{fAct.forEach(doc=>walletTransactionListEl.appendChild(createActivityItem(doc.data())));}portsListEl.innerHTML='';allPortsData={};if(portSnap.empty){
+document.getElementById('profile-country').value=currentUserData.region||'';if(currentUserData.profilePictureUrl){profilePictureImg.src=currentUserData.profilePictureUrl;}kycUploadSection.classList.toggle('hidden',currentUserData.kycStatus==='Pending'||currentUserData.kycStatus==='Verified');kycPendingSection.classList.toggle('hidden',currentUserData.kycStatus!=='Pending');kycVerifiedSection.classList.toggle('hidden',currentUserData.kycStatus!=='Verified');referralCountEl.textContent=currentUserData.referralCount||0;referralEarningsEl.textContent=`$${(currentUserData.referralEarnings||0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;referralLinkInput.value=`chargepace.com/register.html?ref=${user.uid}` } if (paymentSettingsDoc.exists) { paymentSettings = paymentSettingsDoc.data(); } else { console.log("Payment settings not found!"); } activityListEl.innerHTML='';let rAct=actSnap.docs.slice(0,5);if(rAct.length===0){activityListEl.innerHTML='<li style="padding:20px 0;text-align:center;color:var(--text-light);">No recent activity.</li>';}else{rAct.forEach(doc=>activityListEl.appendChild(createActivityItem(doc.data())));}walletTransactionListEl.innerHTML='';let fAct = actSnap.docs.filter(doc =>['earning', 'deposit', 'withdrawal', 'investment', 'maintenance'].includes(doc.data().type));allTransactions = fAct.map(doc => doc.data()).sort((a, b) => b.timestamp - a.timestamp);renderTransactionList('all');if(fAct.length===0){walletTransactionListEl.innerHTML='<li style="padding:20px;text-align:center;color:var(--text-light);">No transactions found.</li>';}else{fAct.forEach(doc=>walletTransactionListEl.appendChild(createActivityItem(doc.data())));}portsListEl.innerHTML='';allPortsData={};if(portSnap.empty){
     portsListEl.innerHTML = `
         <div style="text-align: center; padding: 40px 20px; background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border-color);">
             <div style="width: 60px; height: 60px; background: #e3e8f7; color: #3b5bdb; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px auto; font-size: 1.5rem;">
@@ -831,7 +831,7 @@ if (filterDropdown) {
                 const data = doc.data();
                 
                 // Update Balance
-                const bal = (data.availableBalance || 0).toFixed(2);
+                const bal = (data.availableBalance || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
                 const walletBal = document.getElementById('wallet-balance');
                 const homeBal = document.querySelector('#home-content .balance-amount p');
                 const maxWithdraw = document.getElementById('max-withdraw-balance');
@@ -841,7 +841,7 @@ if (filterDropdown) {
                 if (maxWithdraw) maxWithdraw.textContent = bal;
 
                 // Update Earnings Subtitles
-                const earn = (data.monthlyEarnings || 0).toFixed(2);
+                const earn = (data.monthlyEarnings || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
                 const subTitle = document.querySelector('.balance-subtitle p');
                 if (subTitle) subTitle.textContent = `$${earn} earnings this month`;
 
@@ -869,8 +869,8 @@ if (filterDropdown) {
         const statusClass = `status-${(portData.status || 'unknown').toLowerCase().replace(/ /g, '-')}`; 
         statusEl.classList.add(statusClass); 
         document.getElementById('modal-activation-date').textContent = portData.activationDate ? formatTimestamp(portData.activationDate) : 'Pending'; 
-        document.getElementById('modal-monthly-earnings').textContent = `$${(parseFloat(portData.monthlyEarnings) || 0).toFixed(2)}`; 
-        document.getElementById('modal-lifetime-earnings').textContent = `$${(parseFloat(portData.lifetimeEarnings) || 0).toFixed(2)}`; 
+        document.getElementById('modal-monthly-earnings').textContent = `$${(parseFloat(portData.monthlyEarnings) || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`; 
+        document.getElementById('modal-lifetime-earnings').textContent = `$${(parseFloat(portData.lifetimeEarnings) || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
         document.getElementById('modal-utilization').textContent = `${portData.utilization || 0}%`; 
          
         openModal(portModal); 
@@ -923,7 +923,7 @@ if (filterDropdown) {
              amountEl.textContent = 'Maintenance';
              amountEl.style.fontSize = '1.5rem'; 
         } else {
-             amountEl.textContent = data.amount ? `${amountPrefix}$${Math.abs(data.amount).toFixed(2)}` : 'N/A';
+             amountEl.textContent = data.amount ? `${amountPrefix}$${Math.abs(data.amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : 'N/A';
              amountEl.style.fontSize = '2rem'; 
         }
         amountEl.style.color = amountColor;
@@ -1475,7 +1475,7 @@ function formatKpiNumber(num) {
 
             // 4. Populate the summary page (Step 3)
             document.getElementById('summary-package-name').textContent = investmentState.package;
-            document.getElementById('summary-total-cost').textContent = `$${investmentState.price.toFixed(2)}`;
+            document.getElementById('summary-total-cost').textContent = `$${investmentState.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
             document.getElementById('summary-region').textContent = investmentState.region;
             document.getElementById('summary-legal-name').textContent = investmentState.legalName;
             document.getElementById('summary-phone').textContent = investmentState.phone;
